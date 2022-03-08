@@ -1,0 +1,104 @@
+\documentclass[12pt,twoside]{article}
+\usepackage[dvipsnames]{xcolor}
+\usepackage{tikz,graphicx,amsmath,amsfonts,amscd,amssymb,bm,cite,epsfig,epsf,url}
+\usepackage[hang,flushmargin]{footmisc}
+\usepackage[colorlinks=true,urlcolor=blue,citecolor=blue]{hyperref}
+\usepackage{amsthm,multirow,wasysym,appendix}
+\usepackage{array,subcaption} 
+% \usepackage[small,bf]{caption}
+\usepackage{bbm}
+\usepackage{pgfplots}
+\usetikzlibrary{spy}
+\usepgfplotslibrary{external}
+\usepgfplotslibrary{fillbetween}
+\usetikzlibrary{arrows,automata}
+\usepackage{thmtools}
+\usepackage{blkarray} 
+\usepackage{textcomp}
+\usepackage[left=0.8in,right=1.0in,top=1.0in,bottom=1.0in]{geometry}
+
+\input{macros}
+%\input{Symbols}
+
+\begin{document}
+
+\begin{center}
+{\large{\textbf{Homework 3}} } \vspace{0.2cm}\\
+Due Feb 28 at 11 pm
+\end{center}
+
+\begin{enumerate}
+
+\item (Augmented dataset) Ridge regression is equivalent to applying OLS on an expanded dataset that has additional examples. Describe these additional examples in detail. Intuitively, what effect do these additional examples have?
+
+\item  (Correlated features) Consider a regression problem where the response only depends on one feature, but we don't know it, so we incorporate an additional feature into the model that happens to be very correlated with the first feature. More specifically, let $y \in \R^{n}$ be defined by
+\begin{align}
+y := \beta_{\op{true}} w_1 + z, 
+\end{align}
+where $\beta_{\op{true}} \in \R$ is the true coefficient, $w_1 \in \R^n$ is the first feature vector, and $z \in \R^{n}$ is additive noise. The second feature vector is given by $w_2\in \R^n$ and can be decomposed into
+\begin{align}
+w_2 = \alpha w_1 + \sqrt{1-\alpha^2} w_{\perp},
+\end{align}  
+where $w_{\perp}$ is orthogonal to $w_1$. The vectors $w_1$, $w_2$, $w_{\perp}$ and $z$ all have unit $\ell_2$ norm. In addition, we assume
+\begin{align}
+w_1^Tz = 0.1, \\
+w_{\perp}^Tz = 0.1.
+\end{align}
+We fit a linear regression model to $y$ using the feature matrix 
+  \begin{align}
+  X & = \MAT{w_1^T \\ w_2^T}.
+  \end{align} 
+ \begin{enumerate}
+  \item What does the OLS estimator of the coefficients $\beta_{\op{OLS}}$ equal to when $\alpha \rightarrow 1$? Explain what is happening. \\
+\emph{Hint:} Use the fact that for any $a$, $b$, $c$, and $d$ such that $ad \neq bc$
+\begin{align}
+ \MAT{a & b \\ c & d}^{-1} = \frac{1}{ad-bc} \MAT{d & -b \\ -c & a}.
+\end{align}
+   \item  What does the corresponding estimate of the response $y_{\op{OLS}} := X^T\beta_{\op{OLS}}$ equal to when $\alpha \rightarrow 1$? Is it collinear with the true feature $w_1$ when $\alpha \rightarrow 1$? Explain what is happening.
+  \item What does the ridge regression estimator of the coefficients $\beta_{\op{RR}}$ equal to when $\alpha \rightarrow 1$ and the regularization parameter $\lambda >0$ is fixed? Describe the difference with the OLS estimate.
+  \item  What does the corresponding estimate of the response $y_{\op{RR}} := X^T\beta_{\op{RR}}$ equal to when $\alpha \rightarrow 1$? Is it collinear with the true feature $w_1$?
+  \end{enumerate} 
+  
+ \item (Prior knowledge) Consider a linear regression problem where we have prior information indicating that the coefficients should be close to a certain value $\beta_{\op{prior}}$. 
+ \begin{enumerate}
+   \item How can you incorporate this prior knowledge if you are using ridge regression? Write the corresponding optimization problem. 
+   \item Assume that the data are generated according to a linear model $\rnd{y}:= X^T \beta_{\op{true}} + \rnd{z}$, where $\beta_{true}\in \R^{p}$ and $X  \in \R^{p \times n}$ are fixed and $\rnd{z}$ is an iid Gaussian random vector with zero mean and variance $\sigma^2$. Does the modification change the mean or the covariance matrix of the coefficient estimate with respect to the ridge-regression estimate? If so, report the new value.
+    \item How can you incorporate this prior knowledge if you are using gradient descent with early stopping? Write the corresponding update equation as a function of $\beta_{\op{prior}}$.
+    \item Assume that the data are generated according to the linear model described above. Does the modification change the mean or the covariance matrix of the coefficient estimate with respect to the gradient descent estimate initialized at the origin? If so, report the new value.
+ \end{enumerate}
+ 
+ \item (Stochastic Gradient Descent) In class we saw how to use gradient descent to solve an optimization problem and applied it to ordinary least squares and ridge regression.  However, gradient descent is often not used in practice.  When the training data set is very large,  computing the gradient of the objective function can take a long time as we need to go through the whole dataset for a single gradient step.  When the objective function takes the form of an average of
+many values, such as in the case of linear regression
+\[
+J(\beta)= \frac{1}{m}\sum_{i=1}^{m}\left( \beta^Tx_{i} -y_{i}\right)^{2}
+\]
+ stochastic gradient descent (SGD) can be very effective.  
+ \begin{enumerate}
+
+\item Here In SGD, rather than taking $-\nabla J(\beta)$
+as our step direction (as in gradient descent),  we take the gradient of objective function assuming there there is only data point $i$ chosen uniformly at random from $\{1,\ldots,m\}$.  Show that the SGD gradient is an unbiased estimator of the real gradient  $-\nabla J(\beta)$. 
+
+\item Derive the SGD update rule for the linear regression  
+
+\item Use \texttt{np.linalg.lstsq} to find the least squares solution in \texttt{sgd.ipynb}. \\
+
+ \noindent For our analysis of SGD, we assumed that we pick a datapoint at random at each step.  The However, typically in practice,  we we go through the whole dataset in a random order instead.  One pass through the whole dataset is called an epoch.  We recommend that your implementation for the next problem follow the strategy of going through all data points in a random order (ie shuffle dataset before every epoch) rather than picking a point uniformly at random for each step.  
+
+\item  Use SGD to find $\beta^{*}$ that minimizes the linear regression 
+objective  in \texttt{sgd.ipynb}.  Note that our gradient estimate in each step is quite noisy (even though in expectation it matches the full graident).  Since our steps are noisy,  it is important to pick the learning rate carefully.  For this question,  try a few fixed step sizes (at least try $\eta_{t}\in\left\{ 0.05,.005, 0.005\right\} $ and step sizes that decrease with the step number according
+to the following schedules: $\eta_{t}=\frac{C}{t}$ and $\eta_{t}=\frac{C}{\sqrt{t}}$, $C \leq 1$.  Please include atleast $C = 0.01$ in your submissions.  For each step size rule,  plot the value of train loss and validation loss
+(or the log of it if that is more clear) as a
+function of epoch (or step number, if you prefer) for each of the
+approaches to step size.  How do the results compare?
+
+\item Compute the error on the test set for the best $\beta$ value obtained using SGD and  \texttt{np.linalg.lstsq}  in part (c).
+
+\end{enumerate}
+
+The notebooks on \href{https://github.com/cfgranda/math-tools-nyu/blob/main/03a%20ridge_regression.ipynb}{ridge regression} and  \href{https://github.com/cfgranda/math-tools-nyu/blob/main/03b%20gradient%20descent.ipynb}{gradient descent} maybe useful for this assignment.
+
+
+
+
+ \end{enumerate}
+\end{document}
